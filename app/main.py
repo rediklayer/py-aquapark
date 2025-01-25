@@ -1,4 +1,5 @@
 from abc import ABC
+from typing import Type
 
 
 class IntegerRange:
@@ -7,10 +8,10 @@ class IntegerRange:
         self.max_amount = max_amount
         self.protected_name = ""
 
-    def __set_name__(self, owner: type, name: str) -> None:
+    def __set_name__(self, owner: Type, name: str) -> None:
         self.protected_name = f"_{name}"
 
-    def __get__(self, instance: object, owner: type) -> int:
+    def __get__(self, instance: object, owner: Type) -> int:
         return getattr(instance, self.protected_name)
 
     def __set__(self, instance: object, value: int) -> None:
@@ -24,11 +25,43 @@ class IntegerRange:
 
 
 class Visitor:
+    age: IntegerRange
+    weight: IntegerRange
+    height: IntegerRange
+
     def __init__(self, name: str, age: int, weight: int, height: int) -> None:
         self.name = name
-        self.age = age
-        self.weight = weight
-        self.height = height
+        self._age = age
+        self._weight = weight
+        self._height = height
+
+    age = IntegerRange(0, 120)
+    weight = IntegerRange(1, 500)
+    height = IntegerRange(30, 300)
+
+    @property
+    def age(self) -> int:
+        return self._age
+
+    @age.setter
+    def age(self, value: int) -> None:
+        IntegerRange(0, 120).__set__(self, value)
+
+    @property
+    def weight(self) -> int:
+        return self._weight
+
+    @weight.setter
+    def weight(self, value: int) -> None:
+        IntegerRange(1, 500).__set__(self, value)
+
+    @property
+    def height(self) -> int:
+        return self._height
+
+    @height.setter
+    def height(self, value: int) -> None:
+        IntegerRange(30, 300).__set__(self, value)
 
 
 class SlideLimitationValidator(ABC):
@@ -60,7 +93,7 @@ class AdultSlideLimitationValidator(SlideLimitationValidator):
 class Slide:
     def __init__(self,
                  name: str,
-                 limitation_class: SlideLimitationValidator) -> None:
+                 limitation_class: Type[SlideLimitationValidator]) -> None:
         self.name = name
         self.limitation_class = limitation_class
 
